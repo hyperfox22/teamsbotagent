@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "target": "es2018",
+    "module": "nodenext",
+    "outDir": "./dist",
+    "rootDir": "./",
+    "moduleResolution": "nodenext",
+    "sourceMap": true,
+    "incremental": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+  },
+  "include": ["src"]
+}
