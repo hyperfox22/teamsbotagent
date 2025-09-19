@@ -1,144 +1,321 @@
-# Overview of the Notification bot template
+# SOCBot - AI-Powered Security Operations Teams Bot
 
-This template showcases an app that send a message to Teams with Adaptive Cards triggered by a HTTP post request or timer schedule. You can further extend the template to consume, transform and post events to individual, chat or channel in Teams.
+> **HyperSOC Project for Hackathon2025**  
+> An intelligent Teams bot that integrates AI agents with security operations, providing both 1-1 personal notifications and targeted channel messaging for security teams.
 
-The app template is built using the TeamsFx SDK, which provides a simple set of functions over the Microsoft 365 Agents SDK to implement this scenario.
+## 🚀 Overview
 
-## Get Started with the Notification bot
+SOCBot is a comprehensive Microsoft Teams notification and AI agent bot designed for security operations centers. It combines the power of Azure AI agents with Teams messaging to deliver intelligent security insights and notifications through multiple channels.
 
->
-> **Prerequisites**
->
-> To run the notification bot template in your local dev machine, you will need:
->
-> - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
-> - An [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
-> - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
->
-> **Note**
->
-> Your app can be installed into a team, or a group chat, or as personal app. See [Installation and Uninstallation](https://aka.ms/teamsfx-notification-new#customize-installation).
-> For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
+### ✨ Key Features
 
-1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
-2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
-3. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
-4. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
-5. If you select `Timer Trigger`, wait for 30 seconds. If you select `HTTP Trigger`, send a POST request to `http://<endpoint>/api/notification` with your favorite tool (like `Postman`)
+- **🤖 AI Agent Integration**: Powered by Azure AI Foundry with persistent conversation threads
+- **📱 Dual Notification System**: Separate endpoints for personal 1-1 messages and targeted channel notifications  
+- **🔒 Security-Focused**: Built for security operations with threat analysis capabilities
+- **⚡ Multiple Triggers**: HTTP triggers, Logic Apps integration, and programmatic access
+- **🎯 Smart Targeting**: Send notifications to specific channels, users, or broadcast to all installations
+- **📊 Comprehensive Diagnostics**: Built-in health checks and installation monitoring
+- **🔧 Parameterized Infrastructure**: Environment-specific deployments with Azure Bicep
 
-   - When your project is running locally, replace `<endpoint>` with `localhost:3978`
-   - When your project is deployed to Azure App Service, replace `<endpoint>` with the url from Azure App Service
+## 🏗️ Architecture
 
-The bot will send an Adaptive Card to Teams:
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Logic Apps    │    │  External APIs  │    │   Timer/Cron    │
+│   Workflows     │    │   & Webhooks    │    │   Schedules     │
+└─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘
+          │                      │                      │
+          ▼                      ▼                      ▼
+    ┌─────────────────────────────────────────────────────────────┐
+    │                 Azure Functions Host                        │
+    │  ┌─────────────┐ ┌─────────────┐ ┌─────────────────────┐   │
+    │  │/api/        │ │/api/channel-│ │/api/diagnostics     │   │
+    │  │notification │ │notification │ │/api/health          │   │
+    │  │(1-1 msgs)   │ │(channels)   │ │/api/user-message    │   │
+    │  └─────────────┘ └─────────────┘ └─────────────────────┘   │
+    └─────────────────────┬───────────────────────────────────────┘
+                          │
+                          ▼
+    ┌─────────────────────────────────────────────────────────────┐
+    │               Teams Bot Framework                           │
+    │  ┌─────────────────┐    ┌─────────────────────────────┐    │
+    │  │  Agent Connector│    │     Teams Installations     │    │
+    │  │  (AI Foundry)   │    │  • Personal Chats          │    │
+    │  │                 │    │  • Team Channels           │    │
+    │  └─────────────────┘    └─────────────────────────────┘    │
+    └─────────────────────────────────────────────────────────────┘
+```
 
-![Notification Message in Teams](https://user-images.githubusercontent.com/7642967/223006044-5003574e-2aee-4a41-9b71-c103d0439012.png)
+## 🔧 API Endpoints
 
-## What's included in the template
+### **1-1 Personal Notifications** (`POST /api/notification`)
+```json
+{
+  "subject": "Security Alert",
+  "body": {
+    "contentType": "html", 
+    "content": "Critical security incident detected"
+  },
+  "userName": "john.doe"  // Optional: adds @mention
+}
+```
 
-| Folder / File | Contents |
-| - | - |
-| `m365agents.yml` | Main project file describes your application configuration and defines the set of actions to run in each lifecycle stages |
-| `m365agents.local.yml`| This overrides `m365agents.yml` with actions that enable local execution and debugging |
-| `.vscode/` | VSCode files for local debug |
-| `src/` | The source code for the notification application |
-| `appPackage/` | Templates for the application manifest |
-| `infra/` | Templates for provisioning Azure resources |
+### **Channel Notifications** (`POST /api/channel-notification`)
+```json
+{
+  "channelUrl": "https://teams.microsoft.com/l/channel/19%3A...",
+  "subject": "Team Alert",
+  "body": {
+    "contentType": "html",
+    "content": "Security team notification"
+  }
+}
+```
 
-The following files can be customized and demonstrate an example implementation to get you started.
+### **AI Agent Prompts** (Both endpoints support)
+```json
+{
+  "prompt": "What are the top security threats this week?"
+}
+```
 
-| File | Contents |
-| - | - |
-| `*Trigger/function.json` | Azure Function bindings for the notification trigger |
-| `src/*Trigger.ts` | Notification trigger implementation |
-| `src/teamsBot.ts`| An empty teams activity handler for bot customization |
-| `src/adaptiveCards/notification-default.json` | A generated Adaptive Card that is sent to Teams |
-| `src/cardModels.ts` | The default Adaptive Card data model |
+### **Diagnostics & Health**
+- `GET /api/diagnostics` - Bot installation and channel access analysis
+- `GET /api/health` - Environment validation and MSI token testing
 
-The following files implement the core notification on the Microsoft 365 Agents SDK. You generally will not need to customize these files.
+## 🛠️ Quick Start
 
-| File / Folder | Contents |
-| - | - |
-| `src/internal/initialize.ts` | Application initialization |
-| `messageHandler/` | Azure Function bindings to implement Bot protocol |
-| `src/internal/messageHandler.ts`<br/>`src/internal/responseWrapper.ts` | Bot protocol implementation |
+### Prerequisites
 
-The following files are project-related files. You generally will not need to customize these files.
+- [Node.js](https://nodejs.org/) (versions 18, 20, 22)
+- [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
+- [Microsoft 365 Agents Toolkit](https://aka.ms/teams-toolkit) v5.0.0+
+- Azure subscription for AI Foundry and Function Apps
 
-| File / Folder | Contents |
-| - | - |
-| `.funcignore` | Azure Functions ignore file to exclude local files |
-| `.gitignore` | Git ignore file |
-| `host.json` | Azure Functions host file |
-| `local.settings.json` | Azure Functions settings for local debugging |
-| `package.json` | NPM package file |
+### Local Development
 
-## Extend the notification bot template
+1. **Clone and Setup**
+   ```bash
+   git clone <repository-url>
+   cd teamsbotagent
+   npm install
+   ```
 
-There are few customizations you can make to extend the template to fit your business requirements.
+2. **Configure Environment**
+   ```bash
+   # Copy environment template
+   cp env/.env.local.user.example env/.env.local.user
+   
+   # Update with your values:
+   # - PROJECT_CONNECTION_STRING (Azure AI Foundry)
+   # - AGENT_ID (AI Agent ID)
+   # - MicrosoftAppId, MicrosoftAppPassword (Bot registration)
+   ```
 
-1. [Step 1: Customize the trigger point from event source](#step-1-customize-the-trigger-point-from-event-source)
-2. [Step 2: Customize the notification content](#step-2-customize-the-notification-content)
-3. [Step 3: Customize where notifications are sent](#step-3-customize-where-notifications-are-sent)
+3. **Start Development Server**
+   ```bash
+   # Start local Functions host
+   npm run dev
+   
+   # Or with TeamsFx debugging
+   npm run dev:teamsfx
+   ```
 
-### Step 1: Customize the trigger point from event source
+4. **Debug in Teams**
+   - Press F5 in VS Code
+   - Select "Debug in Teams (Edge/Chrome)"
+   - Install the app when Teams launches
 
-If you selected `timer` trigger, the default Azure Function timer trigger (`src/timerTrigger.ts`) implementation simply sends a hard-coded Adaptive Card every 30 seconds. You can edit the file `*Trigger/function.json` to customize the `schedule` property. Refer to the [Azure Function documentation](https://docs.microsoft.com/azure/azure-functions/functions-bindings-timer?tabs=in-process&pivots=programming-language-javascript#ncrontab-expressions) for more details.
+### Production Deployment
 
-If you selected `http` trigger, when this trigger is hit (via a HTTP request), the default implementation sends a hard-coded Adaptive Card to Teams. You can change this behavior by customizing `src/*Trigger.ts`. A typical implementation might make an API call to retrieve some events and/or data, and then send an Adaptive Card as appropriate.
+1. **Deploy Infrastructure**
+   ```bash
+   # Deploy Azure resources
+   az deployment group create --resource-group <rg-name> \
+     --template-file infra/azure.bicep \
+     --parameters @infra/azure.parameters.json
+   ```
 
-You can also add any Azure Function trigger. For example:
+2. **Deploy Function App**
+   - Use `socagent-complete-endpoints.zip` (includes all endpoints)
+   - Upload via Azure Portal or Azure CLI
 
-- You can use an `Event Hub` trigger to send notifications when an event is pushed to Azure Event Hub.
-- You can use a `Cosmos DB` trigger to send notifications when a Cosmos document has been created or updated.
+3. **Deploy Teams App**
+   - Use `socbot-fixed-manifest.zip` 
+   - Upload via Teams Admin Center or direct installation
 
-See Azure Functions [supported triggers](https://docs.microsoft.com/azure/azure-functions/functions-triggers-bindings?tabs=javascript#supported-bindings).
+## 📁 Project Structure
 
-## Step 2: Customize the notification content
+### Core Application Files
+```
+├── src/
+│   ├── httpTrigger.ts              # 1-1 personal notifications
+│   ├── channelNotifier.ts          # Channel-specific messaging  
+│   ├── agentConnector.ts           # AI agent integration
+│   ├── teamsBot.ts                 # Teams bot message handling
+│   ├── diagnostics.ts              # Health & installation checks
+│   └── adaptiveCards/
+│       └── notification-default.json
+```
 
-`src/adaptiveCards/notification-default.json` defines the default Adaptive Card. You can use the [Adaptive Card Designer](https://adaptivecards.io/designer/) to help visually design your Adaptive Card UI.
+### Function Configurations
+```
+├── messageHandler/function.json     # Teams bot protocol
+├── notifyHttpTrigger/function.json  # 1-1 notifications
+├── channelNotifier/function.json    # Channel notifications
+├── healthTrigger/function.json      # Health diagnostics
+└── host.json                       # Azure Functions runtime
+```
 
-`src/cardModels.ts` defines a data structure that is used to fill data for the Adaptive Card. The binding between the model and the Adaptive Card is done by name matching (for example,`CardData.title` maps to `${title}` in the Adaptive Card). You can add, edit, or remove properties and their bindings to customize the Adaptive Card to your needs.
+### Infrastructure & Deployment
+```
+├── infra/
+│   ├── azure.bicep                 # Main infrastructure
+│   ├── azure.parameters.json       # Environment parameters
+│   └── botRegistration/
+├── appPackage/
+│   ├── manifest.json               # Teams app manifest
+│   ├── bot.png                     # Custom bot icon
+│   └── outline.png
+```
 
-You can also add new cards if needed. Follow this [sample](https://aka.ms/teamsfx-adaptive-card-sample-new) to see how to build different types of adaptive cards with a list or a table of dynamic contents using `ColumnSet` and `FactSet`.
+## 🤖 AI Agent Features
 
-### Step 3: Customize where notifications are sent
+### **Persistent Conversations**
+- Thread management with 30-minute expiry
+- User context preservation across interactions
+- Enhanced prompts with user identity and conversation type
 
-Notifications can be sent to where the bot is installed:
+### **Security Intelligence**
+- Threat analysis and recommendations
+- Security operations guidance
+- Integration with security data sources
 
-- [Send notifications to a channel](https://aka.ms/teamsfx-notification-new#send-notifications-to-a-channel)
-- [Send notifications to a group chat](https://aka.ms/teamsfx-notification-new#send-notifications-to-a-group-chat)
-- [Send notifications to a personal chat](https://aka.ms/teamsfx-notification-new#send-notifications-to-a-personal-chat)
+### **User Mentions in Group Chats**
+- Automatic @mention of users who interact with bot in channels
+- Context-aware responses based on conversation type
 
-You can also send the notifications to a specific receiver:
+## 🎯 Advanced Features
 
-- [Send notifications to a specific channel](https://aka.ms/teamsfx-notification-new#send-notifications-to-a-specific-channel)
-- [Send notifications to a specific person](https://aka.ms/teamsfx-notification-new#send-notifications-to-a-specific-person)
+### **Teams Channel Integration**
+- **URL Parsing**: Extract channel IDs from Teams URLs
+- **Thread Targeting**: Send messages to specific conversation threads
+- **Permission Management**: Handle channel access and bot permissions
 
-Congratulations, you've just created your own notification! To learn more about extending the notification bot template, [visit the documentation on Github](https://aka.ms/teamsfx-notification-new). You can find more scenarios like:
+### **Logic Apps Integration**
+- **JSON Parsing**: Robust handling of Logic Apps payloads
+- **Error Recovery**: Graceful degradation with detailed error messages
+- **Webhook Support**: Direct integration with external monitoring systems
 
-- [Customize storage](https://aka.ms/teamsfx-notification-new#customize-storage)
-- [Customize adapter](https://aka.ms/teamsfx-notification-new#customize-adapter)
-- [Customize the way to initialize the bot](https://aka.ms/teamsfx-notification-new#customize-initialization)
-- [Add authentication for your notification API](https://aka.ms/teamsfx-notification-new#add-authentication-for-your-notification-api)
-- [Connect to existing APIs](https://aka.ms/teamsfx-notification-new#connect-to-existing-api)
+### **Diagnostic Capabilities**
+- **Installation Analysis**: Check bot installations and permissions
+- **Channel Discovery**: Enumerate accessible channels and their status
+- **Health Monitoring**: Environment validation and dependency checks
+- **Token Testing**: Managed Identity credential validation
 
-## Extend notification bot with other bot scenarios
+## 🔒 Security & Authentication
 
-Notification bot is compatible with other bot scenarios like command bot and workflow bot.
+### **Managed Identity**
+- Single User-Assigned Managed Identity (UAMI) pattern
+- Seamless Azure AI Foundry authentication
+- No stored credentials or connection strings
 
-### Add command to your application
+### **Bot Framework Security**
+- Microsoft App ID/Password authentication
+- Teams-specific scopes: personal, team, groupChat
+- Secure message handling and validation
 
-The command and response feature adds the ability for your application to "listen" to commands sent to it via a Teams message and respond to commands with Adaptive Cards. Follow the [steps here](https://aka.ms/teamsfx-command-new#How-to-add-more-command-and-response) to add the command response feature to your workflow bot. Refer [the command bot document](https://aka.ms/teamsfx-command-new) for more information.
+## 🌍 Multi-Environment Support
 
-### Add workflow to your notification bot
+### **Environment Parameters**
+```json
+{
+  "prefix": "socai",
+  "environment": "prod|dev",
+  "workload": "bot", 
+  "instance": "eus|weu",
+  "region": "eastus|westeurope",
+  "aiProjectConnectionString": "...",
+  "aiAgentId": "asst_..."
+}
+```
 
-Adaptive cards can be updated on user action to allow user progress through a series of cards that require user input. Developers can define actions and use a bot to return an Adaptive Cards in response to user action. This can be chained into sequential workflows. Follow the [steps here](https://aka.ms/teamsfx-workflow-new#add-more-card-actions) to add workflow feature to your command bot. Refer [the workflow document](https://aka.ms/teamsfx-workflow-new) for more information.
+### **Dynamic Resource Naming**
+- Consistent naming: `{prefix}-{environment}-{workload}-{instance}`
+- Environment-specific tagging
+- Region-aware deployments
 
-## Additional information and references
+## 📊 Monitoring & Diagnostics
 
-- [Manage multiple environments](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-multi-env)
-- [Collaborate with others](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-collaboration)
-- [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
-- [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
-- [TeamsFx SDK](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-sdk)
-- [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
+### **Built-in Health Checks**
+- Environment variable validation
+- AI agent connectivity testing  
+- Teams installation verification
+- Managed Identity token validation
+
+### **Logging & Telemetry**
+- Structured logging with context
+- Request/response tracking
+- Error categorization and reporting
+- Performance monitoring
+
+## 🔧 Customization Guide
+
+### **Adding New Notification Types**
+1. Create new trigger function in `src/`
+2. Add function.json configuration
+3. Register route in Azure Functions
+4. Update deployment packages
+
+### **Extending AI Capabilities**
+1. Modify `agentConnector.ts` for new AI features
+2. Update conversation thread management
+3. Enhance user context handling
+4. Add new prompt templates
+
+### **Custom Adaptive Cards**
+1. Design cards using [Adaptive Card Designer](https://adaptivecards.io/designer/)
+2. Add templates to `src/adaptiveCards/`
+3. Create data models for card binding
+4. Update notification logic
+
+## 🚀 Deployment Packages
+
+### **Production Ready**
+- **`socagent-complete-endpoints.zip`** (97MB) - Complete Function App
+- **`socbot-fixed-manifest.zip`** (20KB) - Teams App with fixed manifest
+
+### **Deployment Methods**
+1. **Azure Portal**: Direct zip upload to Function App
+2. **Azure CLI**: Automated deployment scripts
+3. **CI/CD Pipelines**: GitHub Actions integration
+4. **Teams Admin**: Teams app package deployment
+
+## 🏆 Hackathon Project Details
+
+**Project**: HyperSOC - AI-Enhanced Security Operations  
+**Developer**: Ferdi Tancio  
+**Event**: Hackathon2025  
+**Focus**: Intelligent security operations with AI-powered Teams integration
+
+### **Key Innovations**
+- Separated notification architecture for different use cases
+- Persistent AI conversation threads with context preservation
+- Logic Apps integration for automated security workflows
+- Comprehensive diagnostic capabilities for operational excellence
+
+## 📚 Additional Resources
+
+- [Microsoft 365 Agents Toolkit Documentation](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
+- [Azure AI Foundry Documentation](https://learn.microsoft.com/en-us/azure/ai-services/)
+- [Teams Bot Framework](https://docs.microsoft.com/en-us/microsoftteams/platform/bots/what-are-bots)
+- [Adaptive Cards Documentation](https://adaptivecards.io/)
+- [Azure Functions Documentation](https://docs.microsoft.com/en-us/azure/azure-functions/)
+
+## 🤝 Contributing
+
+This project is part of Hackathon2025. For questions or collaboration opportunities, please reach out through the hackathon platform.
+
+---
+
+**Built with ❤️ for security operations teams using Microsoft 365 Agents Toolkit, Azure AI, and Teams Platform.**
