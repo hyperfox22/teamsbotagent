@@ -2,14 +2,16 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "resourceBaseName": {
-      "value": "bot${{RESOURCE_SUFFIX}}"
-    },
-    "functionAppSKU": {
-      "value": "B1"
-    },
-    "botDisplayName": {
-      "value": "TeamsBot"
-    }
+    "prefix": { "value": "acme" },
+    "environment": { "value": "dev" },
+    "workload": { "value": "bot" },
+    "instance": { "value": "weu" },
+    "region": { "value": "westeurope" },
+    "functionAppSKU": { "value": "B1" },
+    "botDisplayName": { "value": "Teams Agent Bot" },
+    "botServiceSku": { "value": "F0" },
+    "aiProjectConnectionString": { "value": "REPLACE-WITH-AI-PROJECT-CONNECTION-STRING" },
+    "aiAgentId": { "value": "REPLACE-WITH-AGENT-ID" },
+    "tags": { "value": { "env": "dev", "owner": "team-x" } }
   }
 }

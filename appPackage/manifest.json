@@ -1,30 +1,30 @@
 {
-    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.21/MicrosoftTeams.schema.json",
-    "manifestVersion": "1.21",
+    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
+    "manifestVersion": "1.17",
     "version": "1.0.0",
-    "id": "${{TEAMS_APP_ID}}",
+    "id": "8a05996b-7b30-4556-b971-2783ed75c1e0",
     "developer": {
-        "name": "My App, Inc.",
-        "websiteUrl": "https://www.example.com",
-        "privacyUrl": "https://www.example.com/privacy",
-        "termsOfUseUrl": "https://www.example.com/termofuse"
+        "name": "Ferdi Tancio for Hackathon2025 - HyperSOC Project",
+        "websiteUrl": "https://innovationstudio.microsoft.com/hackathons/hackathon2025/project/97054",
+        "privacyUrl": "https://privacy.microsoft.com/privacystatement",
+        "termsOfUseUrl": "https://www.microsoft.com/servicesagreement"
     },
     "icons": {
-        "color": "color.png",
+        "color": "bot.png",
         "outline": "outline.png"
     },
     "name": {
-        "short": "TeamsBot${{APP_NAME_SUFFIX}}",
-        "full": "ful name for TeamsBot"
+        "short": "SOCBot",
+        "full": "SOC AI Agent Bot"
     },
     "description": {
-        "short": "short description for TeamsBot",
-        "full": "full description for TeamsBot"
+        "short": "SOC AI Agent for security operations",
+        "full": "An AI-powered security operations center bot that helps with threat analysis and security operations"
     },
     "accentColor": "#FFFFFF",
     "bots": [
         {
-            "botId": "${{BOT_ID}}",
+            "botId": "4ec7c559-085d-43f5-a278-ef81b6d4de7f",
             "scopes": [
                 "personal",
                 "team",

@@ -5,14 +5,15 @@
   "body": [
     {
       "type": "TextBlock",
-      "text": "${title}",
+      "text": "${subject}",
       "size": "Large",
       "weight": "Bolder",
-      "wrap": true
+      "wrap": true,
+      "color": "attention"
     },
     {
       "type": "TextBlock",
-      "text": "${appName}",
+      "text": "HyperSOC Security Operations",
       "isSubtle": true,
       "color": "Accent",
       "weight": "Bolder",
@@ -20,17 +21,21 @@
       "spacing": "None"
     },
     {
-      "type": "TextBlock",
-      "text": "${description}",
-      "isSubtle": true,
-      "wrap": true
+      "type": "RichTextBlock",
+      "inlines": [
+        {
+          "type": "TextRun",
+          "text": "${bodyContent}",
+          "isSubtle": false
+        }
+      ]
     }
   ],
   "actions": [
     {
       "type": "Action.OpenUrl",
-      "title": "View Documentation",
-      "url": "${notificationUrl}"
+      "title": "${actionTitle}",
+      "url": "${actionUrl}"
     }
   ]
 }

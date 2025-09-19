@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "prefix": { "value": "socai" },
+    "environment": { "value": "dev" },
+    "workload": { "value": "bot" },
+    "instance": { "value": "eus" },
+    "region": { "value": "eastus" },
+    "functionAppSKU": { "value": "B1" },
+    "botDisplayName": { "value": "SOCBot" },
+    "botServiceSku": { "value": "F0" },
+  "aiProjectConnectionString": { "value": "https://hypsocdev-aifoundry.services.ai.azure.com/api/projects/hyperSOC" },
+  "aiAgentId": { "value": "asst_25nG5jqZfC7T9Cnu2aT1rpUW" },
+    "tags": { "value": { "env": "dev", "owner": "team-x" } }
+  }
+}
