@@ -1,6 +1,4 @@
-@maxLength(20)
-@minLength(4)
-@description('Used to generate names for all resources in this file')
+@description('Base name used for resources in the bot registration module')
 param resourceBaseName string
 
 @maxLength(42)
@@ -12,23 +10,26 @@ param identityResourceId string
 param identityClientId string
 param identityTenantId string
 param botAppDomain string
+@description('Common tags to apply to bot resources')
+param tags object = {}
 
 // Register your web service as a bot with the Bot Framework
 resource botService 'Microsoft.BotService/botServices@2021-03-01' = {
+  name: botServiceName
   kind: 'azurebot'
   location: 'global'
-  name: botServiceName
   properties: {
     displayName: botDisplayName
     endpoint: 'https://${botAppDomain}/api/messages'
     msaAppId: identityClientId
     msaAppMSIResourceId: identityResourceId
-    msaAppTenantId:identityTenantId
-    msaAppType:'UserAssignedMSI'
+    msaAppTenantId: identityTenantId
+    msaAppType: 'UserAssignedMSI'
   }
   sku: {
     name: botServiceSku
   }
+  tags: tags
 }
 
 // Connect the bot service to Microsoft Teams

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "prefix": { "value": "socai" },
+    "environment": { "value": "prod" },
+    "workload": { "value": "bot" },
+    "instance": { "value": "eus" },
+    "region": { "value": "eastus" },
+    "functionAppSKU": { "value": "P1v3" },
+    "botDisplayName": { "value": "SOCBot" },
+    "botServiceSku": { "value": "S1" },
+  "aiProjectConnectionString": { "value": "https://hypsocdev-aifoundry.services.ai.azure.com/api/projects/hyperSOC" },
+  "aiAgentId": { "value": "asst_25nG5jqZfC7T9Cnu2aT1rpUW" },
+    "tags": { "value": { "env": "prod", "owner": "hackathon2025", "costCenter": "1234" } }
+  }
+}
